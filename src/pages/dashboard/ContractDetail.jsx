@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, Download, FileText, Printer, Trash2 } from 'lucide-react'
 import { getContract, deleteContract, updateContract } from '../../services/contractService'
-import { generateContractPdf } from '../../utils/contractPdfGenerator'
-import { generateContractWord } from '../../utils/contractWordGenerator'
+// jsPDF and docx are only loaded at click-time, not when this page opens.
 import { relocalizeContractContent } from '../../utils/contractTemplates'
 import { getContractLabels } from '../../utils/i18n'
 import { useAuth } from '../../contexts/AuthContext'
@@ -105,13 +104,15 @@ export default function ContractDetail() {
     }
   }
 
-  function handleDownload() {
+  async function handleDownload() {
+    const { generateContractPdf } = await import('../../utils/contractPdfGenerator')
     generateContractPdf({ title: contract.title, content, language: contract.language })
   }
 
   async function handleDownloadWord() {
     setDownloadingWord(true)
     try {
+      const { generateContractWord } = await import('../../utils/contractWordGenerator')
       await generateContractWord({ title: contract.title, content, language: contract.language })
     } catch (e) {
       alert('Could not generate Word document: ' + e.message)

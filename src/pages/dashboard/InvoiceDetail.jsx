@@ -14,8 +14,9 @@ import Loader from '../../components/ui/Loader'
 import ErrorState from '../../components/ui/ErrorState'
 import Select from '../../components/ui/Select'
 import LanguageToggle from '../../components/ui/LanguageToggle'
-import { generateInvoicePdf } from '../../utils/invoicePdfGenerator'
-import { generateInvoiceWord } from '../../utils/invoiceWordGenerator'
+// jspdf/jspdf-autotable (~150KB) and docx (~690KB) are only imported at the
+// moment the user actually clicks download, not when this page loads —
+// otherwise everyone who opens an invoice pays for both generators upfront.
 
 export default function InvoiceDetail() {
   const { id } = useParams()
@@ -68,6 +69,7 @@ export default function InvoiceDetail() {
   async function handleDownload() {
     setDownloading(true)
     try {
+      const { generateInvoicePdf } = await import('../../utils/invoicePdfGenerator')
       await generateInvoicePdf(invoice)
     } catch (e) {
       alert('Could not generate PDF: ' + e.message)
@@ -79,6 +81,7 @@ export default function InvoiceDetail() {
   async function handleDownloadWord() {
     setDownloadingWord(true)
     try {
+      const { generateInvoiceWord } = await import('../../utils/invoiceWordGenerator')
       await generateInvoiceWord(invoice)
     } catch (e) {
       alert('Could not generate Word document: ' + e.message)

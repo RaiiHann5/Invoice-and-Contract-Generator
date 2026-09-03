@@ -8,8 +8,7 @@ import { getUserData } from '../../services/businessService'
 import { createContract } from '../../services/contractService'
 import { buildContractContent } from '../../utils/contractTemplates'
 import { getContractLabels } from '../../utils/i18n'
-import { generateContractPdf } from '../../utils/contractPdfGenerator'
-import { generateContractWord } from '../../utils/contractWordGenerator'
+// jsPDF and docx are only loaded at click-time, not when this page opens.
 import ContractForm from '../../components/contracts/ContractForm'
 import ContractPreview from '../../components/contracts/ContractPreview'
 import Button from '../../components/ui/Button'
@@ -62,13 +61,15 @@ export default function CreateContract() {
     }
   }
 
-  function handleDownload() {
+  async function handleDownload() {
+    const { generateContractPdf } = await import('../../utils/contractPdfGenerator')
     generateContractPdf({ title: meta.title, content, language: meta.language })
   }
 
   async function handleDownloadWord() {
     setDownloadingWord(true)
     try {
+      const { generateContractWord } = await import('../../utils/contractWordGenerator')
       await generateContractWord({ title: meta.title, content, language: meta.language })
     } catch (e) {
       alert('Could not generate Word document: ' + e.message)
